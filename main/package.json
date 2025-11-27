@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "electron": "^39.2.4",
+    "typescript": "^5.9.3"
+  },
+    "scripts": {
+    "build": "tsc"
+  }
+}

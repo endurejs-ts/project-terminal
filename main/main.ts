@@ -1,12 +1,12 @@
-import { app, BrowserWindow, Menu } from "electron";
-import { join } from "path";
+import { app, BrowserWindow, ipcMain, Menu, dialog } from "electron";
+import * as path from "path";
 
 function createWindow() {
     const win = new BrowserWindow({
         width: 900,
         height: 600,
         webPreferences: {
-            preload: join(__dirname, "preload.js"),
+            preload: path.join(__dirname, "preload.js"),
         },
     });
 
@@ -16,6 +16,10 @@ function createWindow() {
     // 배포 시: dist/index.html 로드
     // win.loadFile(join(__dirname, "../dist/index.html"));
 }
+
+ipcMain.handle('get-current-dir', () => {
+    return process.cwd();
+});
 
 app.whenReady().then(() => {
     Menu.setApplicationMenu(null);

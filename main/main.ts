@@ -30,6 +30,7 @@ const allowedCommands = [
     "color",
     "exit",
     "cls",
+    "mkdir",
 ];
 
 ipcMain.handle("run-command", async (_, cmd: string): Promise<{ type: string, msg?: string }> => {

@@ -62,6 +62,7 @@ const allowedCommands = [
     "color",
     "exit",
     "cls",
+    "mkdir",
 ];
 electron_1.ipcMain.handle("run-command", async (_, cmd) => {
     cmd = cmd.trim();

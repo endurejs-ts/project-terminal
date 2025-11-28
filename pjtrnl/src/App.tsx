@@ -47,6 +47,12 @@ export default function App() {
                 const cmd = inputBuffer.current.trim();
                 term.write("\r\n");
 
+                if (cmd === "") {
+                    term.write(`${cwd}> `);
+                    inputBuffer.current = "";
+                    return;
+                }
+
                 // React에서도 exit 처리 가능하지만
                 // main에서 type === "exit" 처리하게 됨
                 const res = await window.myAPI.runCommand(cmd);
@@ -62,17 +68,60 @@ export default function App() {
                         term.clear();
                         term.write(`${cwd}> `);
                         break;
+                    case "color": {
+                        const [_, ...rest] = inputBuffer.current.trim().split(" ");
+                        const args = rest.join(""); // color 뒤의 값
 
-                    case "color":
-                        // color는 React에서 직접 테마 변경
+                        let code = args.toUpperCase().trim();
+
+                        if (code.length === 1) {
+                            code = "0" + code;
+                        }
+
+                        if (code.length !== 2) {
+                            term.writeln("Invalid color code.");
+                            term.write(`${cwd}> `);
+                            break;
+                        }
+
+                        const bgCode = code[0];
+                        const fgCode = code[1];
+
+                        const cmdColorMap: Record<string, string> = {
+                            "0": "#000000",
+                            "1": "#0000AA",
+                            "2": "#00AA00",
+                            "3": "#00AAAA",
+                            "4": "#AA0000",
+                            "5": "#AA00AA",
+                            "6": "#AA5500",
+                            "7": "#AAAAAA",
+                            "8": "#555555",
+                            "9": "#5555FF",
+                            A: "#55FF55",
+                            B: "#55FFFF",
+                            C: "#FF5555",
+                            D: "#FF55FF",
+                            E: "#FFFF55",
+                            F: "#FFFFFF",
+                        };
+
+                        if (!cmdColorMap[bgCode] || !cmdColorMap[fgCode]) {
+                            term.writeln("Invalid color code.");
+                            term.write(`${cwd}> `);
+                            break;
+                        }
+
+                        // theme 적용
                         term.options.theme = {
                             ...term.options.theme,
-                            background: "#000000",
-                            foreground: "#00ff00",
+                            background: cmdColorMap[bgCode],
+                            foreground: cmdColorMap[fgCode],
                         };
-                        term.writeln("");
+
                         term.write(`${cwd}> `);
                         break;
+                    }
 
                     case "exit":
                         term.writeln("Bye!");

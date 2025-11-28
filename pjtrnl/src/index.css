@@ -1,0 +1,9 @@
+/* xterm.js 스크롤바 숨기기 */
+.xterm-viewport::-webkit-scrollbar {
+    display: none !important;
+}
+
+.xterm-viewport {
+    scrollbar-width: none !important;
+    /* Firefox */
+}

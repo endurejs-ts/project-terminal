@@ -32,7 +32,7 @@ const allowedCommands = [
     "cls",
 ];
 
-ipcMain.handle("run-command", async (_, cmd: string) => {
+ipcMain.handle("run-command", async (_, cmd: string): Promise<{ type: string, msg?: string }> => {
     cmd = cmd.trim();
     const base = cmd.split(" ")[0].toLowerCase();
     if (!allowedCommands.includes(base)) {
@@ -44,7 +44,7 @@ ipcMain.handle("run-command", async (_, cmd: string) => {
         try {
             process.chdir(target);
             cwd = process.cwd();
-            return { type: "cwd", cwd };
+            return { type: "cwd", msg: cwd };
         }
         catch (err) {
             return { type: "error", msg: String(err) };
@@ -56,19 +56,20 @@ ipcMain.handle("run-command", async (_, cmd: string) => {
 
     if (base === "color") {
         const colorcode = cmd.slice(6).trim();
+        return { type: "color", msg: colorcode };
     }
 
-    return new Promise<string>((resolve) => {
+    return new Promise((resolve) => {
         exec(
             cmd,
             { cwd: process.cwd(), encoding: "buffer" },
             (error, stdout, stderr) => {
                 if (error) {
                     // stderr를 CP949 → UTF-8 변환
-                    resolve(iconv.decode(stderr, "cp949"));
+                    resolve({ type: "error", msg: iconv.decode(stderr, "cp949") });
                 } else {
                     // stdout을 CP949 → UTF-8 변환
-                    resolve(iconv.decode(stdout, "cp949"));
+                    resolve({ type: "output", msg: iconv.decode(stdout, "cp949") });
                 }
             }
         );

@@ -10,7 +10,6 @@ export default function App() {
     useEffect(() => {
         const term = new Terminal({
             fontFamily: 'D2Coding, Consolas, "Courier New", monospace',
-
             cursorBlink: true,
             fontSize: 14,
             theme: {
@@ -25,14 +24,12 @@ export default function App() {
         term.open(xtermRef.current!);
         fitAddon.fit();
 
-        // 현재 작업 경로 가져오기
         let cwd = "";
         window.myAPI?.getCurrentDir().then((dir) => {
             cwd = dir;
             term.write(`${cwd}> `);
         });
 
-        // 입력 수집
         term.onData(async (data) => {
             const char = data;
 
@@ -50,19 +47,49 @@ export default function App() {
                 const cmd = inputBuffer.current.trim();
                 term.write("\r\n");
 
-                if (cmd.toLowerCase() === "exit") {
-                    term.writeln("Bye!");
-                    term.dispose(); // xterm.js 터미널 종료
-                    // 창까지 닫고 싶으면
-                    window.close(); // React 창 자체를 닫음
-                    return;
+                // React에서도 exit 처리 가능하지만
+                // main에서 type === "exit" 처리하게 됨
+                const res = await window.myAPI.runCommand(cmd);
+
+                switch (res.type) {
+                    case "cwd":
+                        cwd = res.msg!;
+                        term.writeln("");
+                        term.write(`${cwd}> `);
+                        break;
+
+                    case "clear":
+                        term.clear();
+                        term.write(`${cwd}> `);
+                        break;
+
+                    case "color":
+                        // color는 React에서 직접 테마 변경
+                        term.options.theme = {
+                            ...term.options.theme,
+                            background: "#000000",
+                            foreground: "#00ff00",
+                        };
+                        term.writeln("");
+                        term.write(`${cwd}> `);
+                        break;
+
+                    case "exit":
+                        term.writeln("Bye!");
+                        term.dispose();
+                        window.close();
+                        return;
+
+                    case "error":
+                        term.writeln(res.msg || "Error");
+                        term.write(`${cwd}> `);
+                        break;
+
+                    case "output":
+                        term.writeln(res.msg || "");
+                        term.write(`${cwd}> `);
+                        break;
                 }
-
-                const output = await window.myAPI.runCommand(cmd);
-
-                term.writeln(output);
-                cwd = await window.myAPI.getCurrentDir();
-                term.write(`${cwd}> `);
 
                 inputBuffer.current = "";
                 return;
@@ -85,6 +112,7 @@ export default function App() {
                 width: "100%",
                 height: "100vh",
                 background: "#1e1e1e",
+                overflow: "hidden",
             }}
         />
     );

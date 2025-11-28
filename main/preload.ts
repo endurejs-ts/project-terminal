@@ -6,12 +6,5 @@ window.addEventListener("DOMContentLoaded", () => {
 
 contextBridge.exposeInMainWorld("myAPI", {
   getCurrentDir: () => ipcRenderer.invoke("get-current-dir"),
+  runCommand: (cmd: string) => ipcRenderer.invoke("run-command", cmd),
 });
-
-declare global {
-  interface Window {
-    myAPI: {
-      getCurrentDir: () => Promise<string>;
-    };
-  }
-}

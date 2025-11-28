@@ -6,4 +6,5 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 electron_1.contextBridge.exposeInMainWorld("myAPI", {
     getCurrentDir: () => electron_1.ipcRenderer.invoke("get-current-dir"),
+    runCommand: (cmd) => electron_1.ipcRenderer.invoke("run-command", cmd),
 });

@@ -32,9 +32,14 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path = __importStar(require("path"));
+const child_process_1 = require("child_process");
+const iconv_lite_1 = __importDefault(require("iconv-lite"));
 function createWindow() {
     const win = new electron_1.BrowserWindow({
         width: 900,
@@ -48,8 +53,34 @@ function createWindow() {
     // 배포 시: dist/index.html 로드
     // win.loadFile(join(__dirname, "../dist/index.html"));
 }
-electron_1.ipcMain.handle('get-current-dir', () => {
+electron_1.ipcMain.handle("get-current-dir", () => {
     return process.cwd();
+});
+const allowedCommands = [
+    "tree",
+    "echo",
+    "cd",
+    "color",
+    "exit",
+    "cls",
+];
+electron_1.ipcMain.handle("run-command", async (_, cmd) => {
+    const base = cmd.split(" ")[0];
+    if (!allowedCommands.includes(base)) {
+        return `❌ 허용되지 않은 명령: ${cmd}`;
+    }
+    return new Promise((resolve) => {
+        (0, child_process_1.exec)(cmd, { cwd: process.cwd(), encoding: "buffer" }, (error, stdout, stderr) => {
+            if (error) {
+                // stderr를 CP949 → UTF-8 변환
+                resolve(iconv_lite_1.default.decode(stderr, "cp949"));
+            }
+            else {
+                // stdout을 CP949 → UTF-8 변환
+                resolve(iconv_lite_1.default.decode(stdout, "cp949"));
+            }
+        });
+    });
 });
 electron_1.app.whenReady().then(() => {
     electron_1.Menu.setApplicationMenu(null);

@@ -11,6 +11,9 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: true,
         },
     });
 
@@ -38,6 +41,13 @@ ipcMain.handle("run-command", async (_, cmd: string): Promise<{ type: string, ms
     const base = cmd.split(" ")[0].toLowerCase();
     if (!allowedCommands.includes(base)) {
         return { type: "error", msg: `❌ 허용되지 않은 명령어: ${cmd}` };
+    }
+
+    if (cmd.includes("&&") || cmd.includes("|") || cmd.includes(";")) {
+        return {
+            type: "error",
+            msg: "no composite command allowed"
+        }
     }
     
     if (base === "cd") {

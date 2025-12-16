@@ -47,6 +47,9 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: path.join(__dirname, "preload.js"),
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: true,
         },
     });
     // 개발 중: Vite 개발 서버로 연결
@@ -69,6 +72,12 @@ electron_1.ipcMain.handle("run-command", async (_, cmd) => {
     const base = cmd.split(" ")[0].toLowerCase();
     if (!allowedCommands.includes(base)) {
         return { type: "error", msg: `❌ 허용되지 않은 명령어: ${cmd}` };
+    }
+    if (cmd.includes("&&") || cmd.includes("|") || cmd.includes(";")) {
+        return {
+            type: "error",
+            msg: "no composite command allowed"
+        };
     }
     if (base === "cd") {
         const target = cmd.slice(3).trim();

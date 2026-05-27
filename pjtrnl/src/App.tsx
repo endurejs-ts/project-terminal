@@ -29,8 +29,8 @@ export default function App() {
         window.myAPI?.getCurrentDir().then(async (dir) => {
             cwd = dir;
 
-            const fileData = await window.myAPI.readDir(cwd);
-            setFiles(fileData);
+            // const fileData = await window.myAPI.readDir(cwd);
+            // setFiles(fileData);
 
             term.write(`${cwd}> `);
         });

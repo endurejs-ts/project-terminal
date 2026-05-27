@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import * as path from "path";
+import * as fs from 'fs';
 import { exec } from "child_process";
 import iconv from "iconv-lite";
 
@@ -74,6 +75,21 @@ ipcMain.handle("run-command", async (_, cmd: string): Promise<{ type: string, ms
                 }
             }
         );
+    });
+});
+
+ipcMain.handle("read-dir", (_, dir) => {
+    const files = fs.readdirSync(dir);
+
+    return files.map((file) => {
+        const fullpath = path.join(dir, file);
+        const stat = fs.statSync(fullpath);
+
+        return {
+            name: file,
+            isDirectory: stat.isDirectory(),
+            ext: path.extname(file),
+        };
     });
 });
 

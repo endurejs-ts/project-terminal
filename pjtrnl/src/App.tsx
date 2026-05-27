@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
@@ -6,6 +6,7 @@ import "@xterm/xterm/css/xterm.css";
 export default function App() {
     const xtermRef = useRef<HTMLDivElement | null>(null);
     const inputBuffer = useRef("");
+    const [files, setFiles] = useState<any[]>([]);
 
     useEffect(() => {
         const term = new Terminal({
@@ -25,8 +26,10 @@ export default function App() {
         fitAddon.fit();
 
         let cwd = "";
-        window.myAPI?.getCurrentDir().then((dir) => {
+        window.myAPI?.getCurrentDir().then(async (dir) => {
             cwd = dir;
+
+            
             term.write(`${cwd}> `);
         });
 

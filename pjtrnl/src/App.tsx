@@ -29,7 +29,9 @@ export default function App() {
         window.myAPI?.getCurrentDir().then(async (dir) => {
             cwd = dir;
 
-            
+            const fileData = await window.myAPI.readDir(cwd);
+            setFiles(fileData);
+
             term.write(`${cwd}> `);
         });
 
@@ -159,13 +161,35 @@ export default function App() {
 
     return (
         <div
-            ref={xtermRef}
             style={{
-                width: "100%",
+                display: "flex",
                 height: "100vh",
-                background: "#1e1e1e",
-                overflow: "hidden",
             }}
-        />
+        >
+            <div
+                style={{
+                    width: "250px",
+                    background: "#252526",
+                    color: "white",
+                    overflow: "auto",
+                    padding: "8px",
+                }}
+            >
+                {files.map((file) => (
+                    <div key={file.name}>
+                        {file.isDirectory ? "📁" : "📄"} {file.name}
+                    </div>
+                ))}
+            </div>
+
+            <div
+                ref={xtermRef}
+                style={{
+                    flex: 1,
+                    background: "#1e1e1e",
+                    overflow: "hidden",
+                }}
+            />
+        </div>
     );
 }

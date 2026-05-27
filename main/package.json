@@ -4,7 +4,8 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "electron main.js"
   },
   "dependencies": {
     "iconv-lite": "^0.7.0"

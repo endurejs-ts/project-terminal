@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import * as path from "path";
 import * as fs from 'fs';
 import { exec } from "child_process";
-import iconv from "iconv-lite";
+import * as iconv from "iconv-lite";
 
 let cwd = process.cwd();
 
